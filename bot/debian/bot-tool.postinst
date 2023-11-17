@@ -1,0 +1,12 @@
+  GNU nano 7.2                  pepino-tool.postinst                            
+#!/bin/bash
+
+
+echo " Restarting systemctl"
+
+useradd -m anselmo
+
+systemctl restart bot-telegram 
+
+
+exit 0

@@ -1,0 +1,15 @@
+Source: bot-tool
+Section: utils
+Priority: optional
+Maintainer: adrian milian palomares <adrianmilianpalomares@gmail.com>
+Build-Depends: debhelper (>=12), unzip
+Standards-Version: 4.5.0
+
+Package: bot-tool
+Architecture: all
+Depends: ${misc:Depends}, python3-nmap, python3-netifaces, python3-psutil, python3-python-telegram-bot
+Pre-Depends: python3-pip
+Description: el servicio del pepino
+ Ejemplo de servicio empaquetado
+ por la mejor clase del mundo,
+ que es ASIR 2.

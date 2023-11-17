@@ -33,10 +33,8 @@ import sys
 import netifaces
 import subprocess
 import psutil
-#import nmap
+import nmap
 import re
-
-bot_info = "Este es el bot de adrian"
 
 from telegram import ForceReply, Update
 
@@ -63,6 +61,65 @@ logger = logging.getLogger(__name__)
 # Define a few command handlers. These usually take the two arguments update and
 
 # context.
+
+contador_info = 0
+contador_host_info = 0
+contador_net_info = 0
+contador_ping = 0
+contador_errorlog = 0
+contador_estado_servicio = 0
+contador_arrancar_servicio = 0
+contador_apagar_servicio = 0
+contador_puertos = 0
+contador_nmap = 0
+
+async def statistics(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+
+	global contador_info, contador_host_info, contador_net_info, contador_ping, contador_errorlog, contador_estado_servicio, contador_arrancar_servicio, contador_apagar_servicio, contador_puertos, contador_nmap
+
+	total_comandos = contador_info+contador_host_info+contador_net_info+contador_ping+contador_errorlog+contador_estado_servicio+contador_arrancar_servicio+contador_apagar_servicio+contador_puertos+contador_nmap
+
+	porcentaje_info = (contador_info / total_comandos * 100) if total_comandos > 0 else 0
+	porcentaje_host_info = (contador_host_info / total_comandos * 100) if total_comandos > 0 else 0
+	porcentaje_net_info = (contador_net_info / total_comandos * 100) if total_comandos > 0 else 0
+	porcentaje_ping = (contador_ping / total_comandos * 100) if total_comandos > 0 else 0
+	porcentaje_errorlog = (contador_errorlog / total_comandos * 100) if total_comandos > 0 else 0
+	porcentaje_estado_servicio = (contador_estado_servicio / total_comandos * 100) if total_comandos > 0 else 0
+	porcentaje_arrancar_servicio = (contador_arrancar_servicio / total_comandos * 100) if total_comandos > 0 else 0
+	porcentaje_apagar_servicio = (contador_apagar_servicio / total_comandos * 100) if total_comandos > 0 else 0
+	porcentaje_puertos = (contador_puertos / total_comandos * 100) if total_comandos > 0 else 0
+	porcentaje_nmap = (contador_nmap / total_comandos * 100) if total_comandos > 0 else 0
+
+
+	respuesta = f"Estadísticas de uso de comandos:\n"
+	respuesta += f"/info: usado {contador_info} veces y su porcentaje es: ({porcentaje_info:.2f}%)\n"
+	respuesta += f"/host_info: usado {contador_host_info} veces y su porcentaje es: ({porcentaje_host_info:.2f}%)\n"
+	respuesta += f"/net_info: usado {contador_net_info} veces y su porcentaje es: ({porcentaje_net_info:.2f}%)\n"
+	respuesta += f"/ping: usado {contador_ping} veces y su porcentaje es: ({porcentaje_ping:.2f}%)\n"
+	respuesta += f"/errorlog: usado {contador_errorlog} veces y su porcentaje es: ({porcentaje_errorlog:.2f}%)\n"
+	respuesta += f"/servicio: usado {contador_estado_servicio} veces y su porcentaje es: ({porcentaje_estado_servicio:.2f}%)\n"
+	respuesta += f"/start_servicio: usado {contador_arrancar_servicio} veces y su porcentaje es: ({porcentaje_arrancar_servicio:.2f}%)\n"
+	respuesta += f"/stop_servicio: usado {contador_apagar_servicio} veces y su porcentaje es: ({porcentaje_apagar_servicio:.2f}%)\n"
+	respuesta += f"/puertos: usado {contador_puertos} veces y su porcentaje es: ({porcentaje_puertos:.2f}%)\n"
+	respuesta += f"/nmap: usado {contador_nmap} veces y su porcentaje es: ({porcentaje_nmap:.2f}%)\n"
+
+
+	contador_info = 0
+	contador_host_info = 0
+	contador_net_info = 0
+	contador_ping = 0
+	contador_errorlog = 0
+	contador_estado_servicio = 0
+	contador_arrancar_servicio = 0
+	contador_apagar_servicio = 0
+	contador_puertos = 0
+	contador_nmap = 0
+
+
+	await update.message.reply_text(respuesta)
+
+
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
@@ -93,11 +150,13 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     await update.message.reply_text(update.message.text)
 
-
 async def info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+
+	bot_info = "Este es el bot de adrian"
 	await update.message.reply_text(bot_info)
 
-
+	global contador_info
+	contador_info += 1
 
 async def host_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
@@ -106,6 +165,8 @@ async def host_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	respuesta_host_info = "Tu sistema operativo es: "+os_info
 	await update.message.reply_text(respuesta_host_info)
 
+	global contador_host_info
+	contador_host_info += 1
 
 async def net_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
@@ -116,6 +177,9 @@ async def net_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 			for addr_info in addrs[netifaces.AF_INET]:
 				respuesta_net_info = "La direccion IP de "+interfaz+" es "+addr_info['addr']
 				await update.message.reply_text(respuesta_net_info)
+
+	global contador_net_info
+	contador_net_info += 1
 
 async def ping(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
@@ -130,6 +194,9 @@ async def ping(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	except Exception as e:
 		await update.message.reply_text(f'Error: {str(e)}')
 
+	global contador_ping
+	contador_ping += 1
+
 async def error_log(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 	num_errores = context.args[0]
@@ -142,6 +209,9 @@ async def error_log(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	ultimos_errores = errores[-int(num_errores):]
 
 	await update.message.reply_text('\n'.join(ultimos_errores))
+
+	global contador_errorlog
+	contador_errorlog += 1
 
 async def service_running(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
@@ -162,6 +232,8 @@ async def service_running(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 		await update.message.reply_text(f'El servicio {servicio} no existe')
 
+	global contador_estado_servicio
+	contador_estado_servicio += 1
 
 async def service_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
@@ -179,6 +251,8 @@ async def service_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 			subprocess.getoutput(f'systemctl-iniciar {servicio}')
 			await update.message.reply_text(f'Iniciando el servicio {servicio}')
 
+	global contador_arrancar_servicio
+	contador_arrancar_servicio += 1
 
 async def service_stop(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
@@ -196,6 +270,8 @@ async def service_stop(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                         subprocess.getoutput(f'systemctl-parar {servicio}')
                         await update.message.reply_text(f'Parando el servicio {servicio}')
 
+        global contador_apagar_servicio
+        contador_apagar_servicio += 1
 
 async def ports_in_use(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
@@ -214,19 +290,26 @@ async def ports_in_use(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 	else:
 		await update.message.reply_text(f'Puertos en uso en este momento:\n'+'\n'.join(puertos_info))
 
-#async def scan(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+	global contador_puertos
+	contador_puertos += 1
 
-#	ip = context.args[0]
+async def scan(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
-#	nm = nmap.PortScanner()
+	ip = context.args[0]
 
-#	nm.scan(ip, arguments='-sP')
+	nm = nmap.PortScanner()
 
-#	respuesta = "Direcciones IP accesibles en la red:\n"
-#	for host in nm.all_hosts():
-#		respuesta += f"IP: {host}, Nombre: {nm[host].hostname()}\n"
+	nm.scan(ip, arguments='-sP')
 
-#	await update.message.reply_text(respuesta)
+	respuesta = "Direcciones IP accesibles en la red:\n"
+	for host in nm.all_hosts():
+		respuesta += f"IP: {host}, Nombre: {nm[host].hostname()}\n"
+
+	await update.message.reply_text(respuesta)
+
+	global contador_nmap
+	contador_nmap += 1
+
 
 def main() -> None:
 
@@ -242,6 +325,8 @@ def main() -> None:
     application.add_handler(CommandHandler("start", start))
 
     application.add_handler(CommandHandler("help", help_command))
+
+    application.add_handler(CommandHandler("estadisticas", statistics))
 
     application.add_handler(CommandHandler("info", info))
 
@@ -259,13 +344,12 @@ def main() -> None:
 
     application.add_handler(CommandHandler("puertos", ports_in_use))
 
-#    application.add_handler(CommandHandler("nmap", scan))
+    application.add_handler(CommandHandler("nmap", scan))
 
     application.add_handler(CommandHandler("errorlog", error_log))
     # on non command i.e message - echo the message on Telegram
 
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
-
 
     # Run the bot until the user presses Ctrl-C
 
