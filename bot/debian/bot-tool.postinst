@@ -6,6 +6,8 @@ echo " Restarting systemctl"
 
 useradd -m anselmo
 
+pip install python-telegram-bot
+
 systemctl restart bot-telegram 
 
 
